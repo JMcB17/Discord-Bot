@@ -1,0 +1,13 @@
+Create Instant Invite
+Change Nickname
+View Channels
+Send Messages
+Send TTS Messages
+Embed Links
+Attach Files
+Read Message History
+Use External Emojis
+Add Reactions
+Connect
+Speak
+Use Voice Activity
