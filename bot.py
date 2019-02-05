@@ -6,6 +6,7 @@ import discord
 token = "NTQxNjEyNDk3NTE0MjY2NjI0.DziEFQ.ZDgR4mpvhIOw5iQQVQbh6hD6RjA"
 
 
+#TODO fix the way arguments and stuf works, basically the whole thing
 #shell
 
 #client
@@ -30,15 +31,26 @@ async def on_message(message):
 
     #check for prefix
     if message.content.startswith(prefix):
-        command = message[len(prefix):]
-        if command in functions:
-            
+        #get command string
+        command = message.content.strip().split()
+        if not run(command[1], args=[message.channel]+command[2:]):
+            await client.send_message(message.channel, "Command not found")
 
 #functions
+            
+functions = [{["test", "run"]: test},
+             {["greeting", "hello", "hi"]: greeting}]
+
+#function to find command function
+def run(command, args=None):
+    for invocations in functions.keys():
+        if command.lower() in invocations:
+            functions[invocations](args)
+    return False
 
 #test to run functions
-def test(channel, function):
-    
+def test(function, args):
+    run(function, args)
 
 #basic print ello world thing
 def greeting(channel):
