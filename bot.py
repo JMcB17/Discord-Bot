@@ -1,6 +1,7 @@
 #imports
-import asyncio
+#discordpy api for connection to discord
 import discord
+#regex module for scanning messages
 import re
 
 #stating the obvious
@@ -53,7 +54,20 @@ async def on_message(message):
     else:
         print("Not a command")
         
-    #check for conditions
+        #check for conditions
+        print("Checking for conditions")
+        for scn_prc in scn_prcs:
+            condition_met = True
+            for condition in scan_prc:
+                if not eval(condition):
+                    condition_met = False
+            if condition_met:
+                #question: do we want more than one to run on one message?
+                print("Condition found: {}".format(scn_prc.value()))
+                scn_prcs[scn_prc](message)
+                
+            
+                
 
 #DOCUMENTATION
 #command[x]
@@ -64,6 +78,8 @@ async def on_message(message):
 
 #functions
             
+#settings dict
+settings = {loss: True}
 
 #function to find command function
 async def run(command):
@@ -105,16 +121,50 @@ async def bot_help(command):
     for invocations in cmd_funcs.keys():
         out_msg += "\n {}".format(invocations[0])
     await client.send_message(command[0].channel, out_msg)
-
+    
+#setting toggle function
+#TODO: add permissions system
+async def toggle(command):
+    #check that enough arguments have been passed
+    req_args = {"min": 1, "state": 2}
+    if len(command) < 3+req_args["min"]:
+        print("Command error: missing arguments")
+        out_msg = "Missing at least ({}) arguments."
+        out_msg = out_msg.format(3+req_args["min"] - len(command))
+        await client.send_message(command[0].channel, out_msg)
+        
+        return 0
+    
+    #parse args
+    setting = command[3]
+    #find referred setting
+    if setting in settings.keys():
+        #take state for variable or default
+        if len(command) < 3+req_args["state"]:
+            state = not settings[setting]
+        else:
+            state = command[4]
+        #set new value
+        settings[setting] = state
+        out_msg = "Success: setting {} changed to {}."
+    else:
+        print("Toggle error: setting does not exist")
+        out_msg = "The setting '{}' does not exist.".format(setting)
+        await client.send_message(command[0].channel, out_msg)
+    
 cmd_funcs = {("test", "run"): run,
              ("greeting", "hello", "hi"): greeting,
              ("ronnoc", "android"): ronnoc,
-             ("bot help", "help",  "commands"): bot_help}
+             ("bot help", "help",  "commands"): bot_help,
+             ("change setting", "setting", "set", "toggle"): toggle}
 
 
 #message scan procedures
+#there's nothing here yet
+async def null_func(message=None):
+    pass
 
-
+scn_prcs = {(1=1,): null_func}
 
 
 #run the bot
