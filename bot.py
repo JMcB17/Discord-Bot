@@ -23,6 +23,7 @@ async def on_ready():
     print("Notice: If Bot is not true, we are in deep -MESSAGE TERMINATED;")
     print("Running\n")
 
+##    print([server.channels for server in client.servers])
     out_msg = "hello there"
     #fix channel input
 ##    await client.send_message("joels-temp-bot-place", out_msg)
@@ -79,7 +80,8 @@ async def on_message(message):
 #functions
             
 #settings dict
-settings = {loss: True}
+#TODO: make setting persistent
+settings = {"loss": True}
 
 #function to find command function
 async def run(command):
@@ -126,7 +128,7 @@ async def bot_help(command):
 #TODO: add permissions system
 async def toggle(command):
     #check that enough arguments have been passed
-    req_args = {"min": 1, "state": 2}
+    req_args = {"min": 1, "setting": 1, "state": 2}
     if len(command) < 3+req_args["min"]:
         print("Command error: missing arguments")
         out_msg = "Missing at least ({}) arguments."
@@ -144,19 +146,52 @@ async def toggle(command):
             state = not settings[setting]
         else:
             state = command[4]
+            
         #set new value
         settings[setting] = state
-        out_msg = "Success: setting {} changed to {}."
+        
+        out_msg = "Success: setting {} changed to {}.".format(setting, state)
+        print(out_msg)
+        await client.send_message(command[0].channel, out_msg)
     else:
         print("Toggle error: setting does not exist")
+        out_msg = "The setting '{}' does not exist.".format(setting)
+        await client.send_message(command[0].channel, out_msg)
+
+#function to output state of setting variable
+async def read(command):
+    #check that enough arguments have been passed
+    req_args = {"min": 1, "setting": 1}
+    if len(command) < 3+req_args["min"]:
+        print("Command error: missing arguments")
+        out_msg = "Missing at least ({}) arguments."
+        out_msg = out_msg.format((3+req_args["min"]) - len(command))
+        await client.send_message(command[0].channel, out_msg)
+        
+        return 0
+
+    #parse args
+    setting = command[3]
+    #find referred setting
+    if setting in settings.keys():
+        state = settings[setting]
+        
+        #print setting
+        out_msg = "State of setting {} is ({}).".format(setting, state)
+        await client.send_message(command[0].channel, out_msg)
+        out_msg = "Reported to {} that setting {} is {}"
+        print(out_msg.format(command[0].author, setting, state))
+    else:
+        print("Read error: setting does not exist")
         out_msg = "The setting '{}' does not exist.".format(setting)
         await client.send_message(command[0].channel, out_msg)
     
 cmd_funcs = {("test", "run"): run,
              ("greeting", "hello", "hi"): greeting,
              ("ronnoc", "android"): ronnoc,
-             ("bot help", "help",  "commands"): bot_help,
-             ("change setting", "setting", "set", "toggle"): toggle}
+             ("bot_help", "help",  "commands"): bot_help,
+             ("change_setting", "change", "set", "toggle"): toggle,
+             ("read_setting", "read", "report"): read}
 
 
 #message scan procedures
@@ -164,7 +199,7 @@ cmd_funcs = {("test", "run"): run,
 async def null_func(message=None):
     pass
 
-scn_prcs = {(1=1,): null_func}
+scn_prcs = {(1==2,): null_func}
 
 
 #run the bot
