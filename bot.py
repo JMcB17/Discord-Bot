@@ -1,3 +1,5 @@
+#VERSION 0.3
+
 #imports
 #discordpy api for connection to discord
 import discord
@@ -14,6 +16,7 @@ token = "NTQxNjEyNDk3NTE0MjY2NjI0.DziEFQ.ZDgR4mpvhIOw5iQQVQbh6hD6RjA"
 #client
 client = discord.Client()
 
+default_channel = client.get_channel("cyberlife-tower")
 #start bot
 @client.event
 async def on_ready():
@@ -23,10 +26,9 @@ async def on_ready():
     print("Notice: If Bot is not true, we are in deep -MESSAGE TERMINATED;")
     print("Running\n")
 
-##    print([server.channels for server in client.servers])
     out_msg = "hello there"
-    #fix channel input
-##    await client.send_message("joels-temp-bot-place", out_msg)
+    #fixed channel input
+    await client.send_message(default_channel, out_msg)
 
 #run whenever message sent
 @client.event
@@ -195,12 +197,36 @@ cmd_funcs = {("test", "run"): run,
 
 
 #message scan procedures
-#there's nothing here yet
 async def null_func(message=None):
     pass
 
-scn_prcs = {(1==2,): null_func}
+#post loss lol
+async def loss(message):
+    out_msg = "-loss"
+    client.send_message(message.channel, out_msg)
+    print("Sent loss to {}".format(message.author))
+
+scn_prcs = {("1==2",): null_func,
+            ("re.search('^-.*$', message.content)!=None",): loss}
+
+
+#local commands for bot control
+async def control_input():
+    while True:
+        command = input()
+        lcl_funcs[command]()
+
+async def logoff():
+    out_msg = "goodbye there"
+    await client.send_message(default_channel, out_msg)
+    client.logout()
+    print("Successfully logged off")
+    quit()
+    
+#local command list
+lcl_funcs = {("logoff"): logoff}
 
 
 #run the bot
 client.run(token)
+control_input()
