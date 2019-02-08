@@ -1,10 +1,14 @@
-#VERSION 0.3
+#VERSION 4
+#who needs decimals
 
 #imports
-#discordpy api for connection to discord
-import discord
+#asyncio for some wierd stuff
+import asyncio
 #regex module for scanning messages
 import re
+#discordpy api for connection to discord
+import discord
+
 
 #stating the obvious
 #token
@@ -16,8 +20,8 @@ token = "NTQxNjEyNDk3NTE0MjY2NjI0.DziEFQ.ZDgR4mpvhIOw5iQQVQbh6hD6RjA"
 #client
 client = discord.Client()
 
-default_channel = client.get_channel("cyberlife-tower")
-#start bot
+
+#message on start bot
 @client.event
 async def on_ready():
     print("ENTER THE BOT DIMENSION")
@@ -26,14 +30,22 @@ async def on_ready():
     print("Notice: If Bot is not true, we are in deep -MESSAGE TERMINATED;")
     print("Running\n")
 
-    out_msg = "hello there"
-    #fixed channel input
-    await client.send_message(default_channel, out_msg)
+    #default channel is cyberlife-tower
+    global default_channel
+    default_channel = client.get_channel("542414841265127426")
+    if default_channel == None:
+        print("Error: default channel not found")
+    #say hi to the server, if we have a channel for it
+    else:
+        out_msg = "hello there"
+        await client.send_message(default_channel, out_msg)
 
 #run whenever message sent
 @client.event
 async def on_message(message):
-    print("Message detected in channel: {}".format(message.channel))
+    out_msg = "\n Message detected in channel: {}, {}"
+    out_msg = out_msg.format(message.channel, message.channel.id)
+    print(out_msg)
 
     print("Checking for commands")
     
@@ -59,15 +71,20 @@ async def on_message(message):
         
         #check for conditions
         print("Checking for conditions")
+        condition_found = False
         for scn_prc in scn_prcs:
             condition_met = True
-            for condition in scan_prc:
+            for condition in scn_prc:
                 if not eval(condition):
                     condition_met = False
             if condition_met:
                 #question: do we want more than one to run on one message?
-                print("Condition found: {}".format(scn_prc.value()))
-                scn_prcs[scn_prc](message)
+                print("Condition found: {}".format(scn_prc))
+                await scn_prcs[scn_prc](message)
+                condition_found = True
+        #print if none found
+        if not condition_found:
+            print("No condition found")
                 
             
                 
@@ -203,7 +220,7 @@ async def null_func(message=None):
 #post loss lol
 async def loss(message):
     out_msg = "-loss"
-    client.send_message(message.channel, out_msg)
+    await client.send_message(message.channel, out_msg)
     print("Sent loss to {}".format(message.author))
 
 scn_prcs = {("1==2",): null_func,
@@ -214,7 +231,7 @@ scn_prcs = {("1==2",): null_func,
 async def control_input():
     while True:
         command = input()
-        lcl_funcs[command]()
+        await lcl_funcs[command]()
 
 async def logoff():
     out_msg = "goodbye there"
@@ -228,5 +245,7 @@ lcl_funcs = {("logoff"): logoff}
 
 
 #run the bot
+#command input needs fixing but I want to play apex and eat galaxy right now
+#asyncio.create_task(control_input())
 client.run(token)
-control_input()
+
