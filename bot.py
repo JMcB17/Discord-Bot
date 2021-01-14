@@ -6,6 +6,7 @@ import re
 
 #stating the obvious
 #token
+# Note: this token was obviously regenerated when I put this public, and does not work
 token = "NTQxNjEyNDk3NTE0MjY2NjI0.DziEFQ.ZDgR4mpvhIOw5iQQVQbh6hD6RjA"
 
 
